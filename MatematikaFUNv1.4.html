@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Matematika - Game Edukasi SD</title>
+    <style>
+        /* === VARIABEL WARNA === */
+        :root {
+            --primary: #4a6fa5;
+            --primary-dark: #3a5a8a;
+            --secondary: #ff9e4a;
+            --success: #66bb6a;
+            --error: #ef5350;
+            --warning: #ffd54f;
+            --light: #f8f9fa;
+            --dark: #2c3e50;
+            --gradient-bg: linear-gradient(135deg, #74ebd5, #9face6);
+            --gradient-header: linear-gradient(90deg, #4a6fa5, #6a89cc);
+        }
+
+        /* === RESET & BASE STYLES === */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+            background: var(--gradient-bg);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 10px;
+            color: var(--dark);
+            line-height: 1.5;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 1100px;
+            overflow: hidden;
+            animation: fadeIn 0.8s ease;
+            margin: 10px 0;
+        }
+
+        /* === HEADER === */
+        .header {
+            background: var(--gradient-header);
+            color: white;
+            padding: 20px 15px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" opacity="0.1"><text x="50" y="50" font-size="20" text-anchor="middle" fill="white">🧮</text></svg>');
+            background-size: 60px;
+        }
+
+        .header h1 {
+            font-size: clamp(20px, 5vw, 32px);
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
+            padding-right: 60px;
+        }
+
+        .header p {
+            font-size: clamp(14px, 3vw, 18px);
+            opacity: 0.9;
+            position: relative;
+        }
+
+        .character {
+            font-size: clamp(40px, 10vw, 70px);
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .character.happy {
+            transform: translateY(-50%) scale(1.2);
+        }
+
+        .character.sad {
+            transform: translateY(-50%) scale(0.8) rotate(-10deg);
+        }
+
+        .character.dance {
+            animation: dance 1s infinite alternate;
+        }
+
+        @keyframes dance {
+            0% { transform: translateY(-50%) rotate(-10deg); }
+            100% { transform: translateY(-50%) rotate(10deg); }
+        }
+
+        /* === GAME AREA === */
+        .game-area {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .game-area {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+        }
+
+        .main-panel {
+            background: var(--light);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* === LEVEL INFO === */
+        .level-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 12px;
+            border-radius: 10px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .level-badge {
+            background: var(--primary);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .difficulty-badge {
+            background: var(--secondary);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-size: 14px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* === QUESTION BOX === */
+        .question-box {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 3px dashed #e0e0e0;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .question-box::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary);
+            transform: scaleX(0);
+            transition: transform 0.5s ease;
+        }
+
+        .question-box.correct {
+            border-color: var(--success);
+            background: #e8f5e9;
+        }
+
+        .question-box.correct::before {
+            background: var(--success);
+            transform: scaleX(1);
+        }
+
+        .question-box.wrong {
+            border-color: var(--error);
+            background: #ffebee;
+        }
+
+        .question-box.wrong::before {
+            background: var(--error);
+            transform: scaleX(1);
+        }
+
+        .question {
+            font-size: clamp(28px, 8vw, 42px);
+            font-weight: bold;
+            color: var(--dark);
+            margin: 12px 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            word-break: break-word;
+        }
+
+        .timer {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-top: 8px;
+        }
+
+        .timer.warning {
+            color: var(--error);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        /* === CONTROLS === */
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        input {
+            flex: 1;
+            min-width: 150px;
+            padding: 12px;
+            font-size: 18px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 14px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            min-width: 120px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: #333;
+        }
+
+        /* === HINT & FEEDBACK === */
+        .hint-box {
+            background: #fff9e6;
+            border-left: 4px solid var(--warning);
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+            animation: slideDown 0.4s ease;
+            font-size: 14px;
+        }
+
+        .feedback {
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+            animation: slideDown 0.5s;
+            font-size: 16px;
+        }
+
+        .feedback.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid var(--success);
+        }
+
+        .feedback.error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid var(--error);
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* === PROGRESS & STATS === */
+        .progress-container {
+            background: white;
+            padding: 12px;
+            border-radius: 10px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-header);
+            border-radius: 5px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+            display: block;
+            margin-top: 5px;
+        }
+
+        /* === SIDEBAR === */
+        .sidebar {
+            background: var(--light);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .section {
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 12px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .leaderboard {
+            max-height: 180px;
+            overflow-y: auto;
+            margin-top: 8px;
+            border-radius: 6px;
+            background: white;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 5px;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+            font-size: 14px;
+        }
+
+        .leaderboard-item:hover {
+            background: #f5f5f5;
+        }
+
+        .leaderboard-item:last-child {
+            border-bottom: none;
+        }
+
+        .leaderboard-rank {
+            font-weight: bold;
+            margin-right: 6px;
+            color: var(--primary);
+        }
+
+        /* === ACHIEVEMENTS === */
+        .achievement-badge {
+            display: inline-flex;
+            align-items: center;
+            background: var(--secondary);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin: 4px;
+            animation: bounce 0.6s;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .achievement-badge .icon {
+            margin-right: 4px;
+            font-size: 14px;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-6px);}
+            60% {transform: translateY(-3px);}
+        }
+
+        /* === REWARD ANIMATION === */
+        .reward-animation {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 80px;
+            z-index: 1000;
+            animation: zoomInOut 1.2s;
+            pointer-events: none;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes zoomInOut {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+        }
+
+        /* === MODAL === */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s;
+            padding: 15px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.4s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-title {
+            font-size: 22px;
+            margin-bottom: 12px;
+            color: var(--primary);
+            text-align: center;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            color: #999;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .close-modal:hover {
+            background: #f0f0f0;
+        }
+
+        /* === SETTINGS === */
+        .settings-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            background: white;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* === HISTORY === */
+        .history-item {
+            font-size: 14px;
+            padding: 6px 0;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        /* === RESPONSIVE DESIGN === */
+        @media (max-width: 600px) {
+            .container {
+                border-radius: 10px;
+            }
+            
+            .game-area {
+                padding: 15px;
+                gap: 12px;
+            }
+            
+            .main-panel, .sidebar {
+                padding: 15px;
+            }
+            
+            .header {
+                padding: 15px 10px;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            input, button {
+                min-width: 100%;
+            }
+            
+            .settings-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            
+            .settings-row select {
+                width: 100%;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .level-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .character {
+                position: static;
+                transform: none;
+                margin-top: 10px;
+                text-align: center;
+                width: 100%;
+            }
+            
+            .character.happy, .character.sad, .character.dance {
+                transform: none;
+            }
+            
+            @keyframes dance {
+                0% { transform: rotate(-10deg); }
+                100% { transform: rotate(10deg); }
+            }
+            
+            .modal-content {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .header h1 {
+                padding-right: 0;
+            }
+            
+            .character {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏆 Petualangan Matematika SD 🧮😊</h1>
+            <p>Game Edukasi untuk Kelas 3-4 - Belajar Matematika dengan Menyenangkan!</p>
+            <div class="character" id="character">🧮</div>
+        </div>
+
+        <div class="game-area">
+            <div class="main-panel">
+                <div class="level-info">
+                    <div class="level-badge">Level <span id="levelNum">1</span></div>
+                    <div class="difficulty-badge">Kesulitan: <span id="difficultyLabel">Mudah</span></div>
+                    <div id="achievementContainer"></div>
+                </div>
+
+                <div class="question-box" id="questionBox">
+                    <div class="question" id="questionText">Siap untuk petualangan matematika?</div>
+                    <div class="timer" id="timer">Waktu: <span id="timeLeft">30</span> detik</div>
+                </div>
+
+                <div class="controls">
+                    <input type="number" id="answerInput" placeholder="Ketik jawaban di sini...">
+                    <button class="btn-primary" id="submitBtn">✓ Jawab</button>
+                    <button class="btn-secondary" id="hintBtn">💡 Bantuan</button>
+                    <button class="btn-warning" id="skipBtn">⏭ Lewati</button>
+                </div>
+
+                <div class="hint-box" id="hintBox">
+                    <!-- Hint content will be inserted here -->
+                </div>
+
+                <div class="feedback" id="feedback">
+                    <!-- Feedback message will be inserted here -->
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Progress Menuju Level Berikutnya</span>
+                        <span id="progressText">0/5</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-card">
+                        <span>Skor</span>
+                        <span class="stat-value" id="score">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <span>Benar</span>
+                        <span class="stat-value" id="correct">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <span>Salah</span>
+                        <span class="stat-value" id="wrong">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <span>Waktu/Soal</span>
+                        <span class="stat-value" id="avgTime">0</span>s
+                    </div>
+                </div>
+
+                <div class="settings-row">
+                    <label>Operasi:</label>
+                    <select id="operationSelect">
+                        <option value="auto">Semua (Otomatis)</option>
+                        <option value="+">Penjumlahan (+)</option>
+                        <option value="-">Pengurangan (-)</option>
+                        <option value="*">Perkalian (×)</option>
+                        <option value="/">Pembagian (÷)</option>
+                    </select>
+
+                    <label>Mode:</label>
+                    <select id="modeSelect">
+                        <option value="adventure">Petualangan</option>
+                        <option value="practice">Latihan</option>
+                        <option value="timed">Mode Cepat</option>
+                    </select>
+
+                    <button class="btn-primary" id="startBtn">🚀 Mulai Game</button>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="section">
+                    <div class="section-title">👤 Profil Pemain</div>
+                    <input type="text" id="playerName" placeholder="Nama pemain" style="width:100%; padding:10px; border-radius:8px; border:2px solid #ddd; margin-bottom:10px; font-size:14px;">
+                    <button class="btn-secondary" id="saveProfile" style="width:100%">💾 Simpan Profil</button>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">🏆 Leaderboard</div>
+                    <div class="leaderboard" id="leaderboard">
+                        <!-- Leaderboard items will be inserted here -->
+                    </div>
+                    <button class="btn-secondary" id="resetLeaderboard" style="width:100%; margin-top:10px">🔄 Reset Leaderboard</button>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">📊 Riwayat Belajar</div>
+                    <div id="learningHistory">
+                        <div class="history-item">Level tertinggi: <span id="histLevel">-</span></div>
+                        <div class="history-item">Waktu belajar: <span id="histTime">0</span> menit</div>
+                        <div class="history-item">Skor terbaik: <span id="bestScore">0</span></div>
+                        <div class="history-item">Soal dijawab: <span id="totalQuestions">0</span></div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">⚙ Kontrol Game</div>
+                    <button class="btn-primary" id="exportBtn" style="width:100%; margin-bottom:6px">📤 Ekspor Data</button>
+                    <button class="btn-secondary" id="helpBtn" style="width:100%; margin-bottom:6px">❓ Cara Bermain</button>
+                    <button class="btn-secondary" id="reportBtn" style="width:100%">📊 Laporan Belajar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal untuk laporan belajar -->
+    <div class="modal" id="reportModal">
+        <div class="modal-content">
+            <button class="close-modal" id="closeReportModal">×</button>
+            <h2 class="modal-title">📊 Laporan Belajar</h2>
+            <div id="reportContent">
+                <!-- Laporan akan dimuat di sini -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === ELEMEN DOM ===
+        const questionText = document.getElementById('questionText');
+        const answerInput = document.getElementById('answerInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const hintBtn = document.getElementById('hintBtn');
+        const hintBox = document.getElementById('hintBox');
+        const feedback = document.getElementById('feedback');
+        const scoreEl = document.getElementById('score');
+        const correctEl = document.getElementById('correct');
+        const wrongEl = document.getElementById('wrong');
+        const avgTimeEl = document.getElementById('avgTime');
+        const levelNum = document.getElementById('levelNum');
+        const difficultyLabel = document.getElementById('difficultyLabel');
+        const leaderboardEl = document.getElementById('leaderboard');
+        const playerNameInput = document.getElementById('playerName');
+        const saveProfileBtn = document.getElementById('saveProfile');
+        const startBtn = document.getElementById('startBtn');
+        const resetLbBtn = document.getElementById('resetLeaderboard');
+        const operationSelect = document.getElementById('operationSelect');
+        const modeSelect = document.getElementById('modeSelect');
+        const exportBtn = document.getElementById('exportBtn');
+        const questionBox = document.getElementById('questionBox');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const character = document.getElementById('character');
+        const achievementContainer = document.getElementById('achievementContainer');
+        const histLevel = document.getElementById('histLevel');
+        const histTime = document.getElementById('histTime');
+        const bestScore = document.getElementById('bestScore');
+        const totalQuestions = document.getElementById('totalQuestions');
+        const helpBtn = document.getElementById('helpBtn');
+        const skipBtn = document.getElementById('skipBtn');
+        const reportBtn = document.getElementById('reportBtn');
+        const reportModal = document.getElementById('reportModal');
+        const closeReportModal = document.getElementById('closeReportModal');
+        const reportContent = document.getElementById('reportContent');
+        const timerEl = document.getElementById('timer');
+        const timeLeftEl = document.getElementById('timeLeft');
+
+        // === STATE GAME ===
+        let state = {
+            score: 0,
+            correct: 0,
+            wrong: 0,
+            level: 1,
+            difficulty: 1,
+            startTime: null,
+            totalTime: 0,
+            attempts: 0,
+            current: {},
+            playerName: 'Pemain',
+            achievements: [],
+            consecutiveCorrect: 0,
+            gameActive: false,
+            questionHistory: [],
+            timer: null,
+            timeLimit: 30,
+            sessionStartTime: null
+        };
+
+        // === ACHIEVEMENTS ===
+        const achievements = [
+            { id: 'first_5', name: 'Pemula Hebat', desc: 'Menjawab 5 soal dengan benar', threshold: 5, earned: false, icon: '🎯' },
+            { id: 'streak_5', name: 'Jago Beruntun', desc: '5 jawaban benar berturut-turut', threshold: 5, earned: false, icon: '🔥' },
+            { id: 'level_10', name: 'Petualang Handal', desc: 'Mencapai level 10', threshold: 10, earned: false, icon: '⭐' },
+            { id: 'speedster', name: 'Kilat', desc: 'Rata-rata waktu jawab < 5 detik', threshold: 5, earned: false, icon: '⚡' },
+            { id: 'math_master', name: 'Jago Matematika', desc: 'Skor mencapai 200 poin', threshold: 200, earned: false, icon: '🏆' },
+            { id: 'persistent', name: 'Pantang Menyerah', desc: 'Menjawab 50 soal', threshold: 50, earned: false, icon: '💪' }
+        ];
+
+        // === FUNGSI UTAMA ===
+        function initGame() {
+            loadPlayerProfile();
+            renderLeaderboard();
+            loadLearningHistory();
+            updateUI();
+            
+            // Event listeners
+            submitBtn.addEventListener('click', handleSubmit);
+            answerInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleSubmit();
+            });
+            hintBtn.addEventListener('click', showHint);
+            startBtn.addEventListener('click', startGame);
+            saveProfileBtn.addEventListener('click', savePlayerProfile);
+            resetLbBtn.addEventListener('click', resetLeaderboard);
+            operationSelect.addEventListener('change', handleOperationChange);
+            modeSelect.addEventListener('change', handleModeChange);
+            exportBtn.addEventListener('click', exportData);
+            helpBtn.addEventListener('click', showHelp);
+            skipBtn.addEventListener('click', skipQuestion);
+            reportBtn.addEventListener('click', showReport);
+            closeReportModal.addEventListener('click', () => {
+                reportModal.style.display = 'none';
+            });
+            
+            // Focus ke input answer
+            answerInput.focus();
+        }
+
+        function startGame() {
+            state.gameActive = true;
+            state.score = 0;
+            state.correct = 0;
+            state.wrong = 0;
+            state.level = 1;
+            state.difficulty = 1;
+            state.totalTime = 0;
+            state.attempts = 0;
+            state.consecutiveCorrect = 0;
+            state.achievements = [];
+            state.questionHistory = [];
+            state.sessionStartTime = Date.now();
+            
+            // Reset achievements
+            achievements.forEach(ach => ach.earned = false);
+            achievementContainer.innerHTML = '';
+            
+            // Set time limit based on mode
+            if (modeSelect.value === 'timed') {
+                state.timeLimit = 15;
+            } else {
+                state.timeLimit = 30;
+            }
+            
+            updateUI();
+            showQuestion();
+            showFeedback('Game dimulai! Semangat belajar!', 'success');
+            startBtn.textContent = '🔄 Mulai Ulang';
+            startTimer();
+        }
+
+        function showQuestion() {
+            if (!state.gameActive) return;
+            
+            // Hentikan timer sebelum membuat yang baru
+            resetTimer();
+            
+            const question = generateQuestion();
+            questionText.textContent = question.text;
+            
+            answerInput.value = '';
+            hintBox.style.display = 'none';
+            feedback.style.display = 'none';
+            questionBox.className = 'question-box';
+            answerInput.focus();
+            state.startTime = Date.now();
+            
+            // Start timer baru
+            startTimer();
+            
+            // Log question
+            state.questionHistory.push({
+                question: question.text,
+                answer: question.answer,
+                time: 0
+            });
+        }
+
+        function generateQuestion() {
+            let a, b, operation, text, answer;
+            const selectedOperation = operationSelect.value;
+            
+            // Tentukan operasi berdasarkan pilihan
+            if (selectedOperation === 'auto') {
+                const operations = ['+', '-', '*', '/'];
+                operation = operations[Math.floor(Math.random() * operations.length)];
+            } else {
+                operation = selectedOperation;
+            }
+            
+            // Sesuaikan kesulitan berdasarkan level
+            const maxNum = 5 + (state.level * 5);
+            
+            // Generate angka berdasarkan operasi
+            switch (operation) {
+                case '+':
+                    a = Math.floor(Math.random() * maxNum) + 1;
+                    b = Math.floor(Math.random() * maxNum) + 1;
+                    text = `${a} + ${b} = ?`;
+                    answer = a + b;
+                    break;
+                case '-':
+                    a = Math.floor(Math.random() * maxNum) + 5;
+                    b = Math.floor(Math.random() * (a - 1)) + 1;
+                    text = `${a} - ${b} = ?`;
+                    answer = a - b;
+                    break;
+                case '*':
+                    a = Math.floor(Math.random() * Math.min(10, maxNum/2)) + 1;
+                    b = Math.floor(Math.random() * Math.min(10, maxNum/2)) + 1;
+                    text = `${a} × ${b} = ?`;
+                    answer = a * b;
+                    break;
+                case '/':
+                    b = Math.floor(Math.random() * Math.min(10, maxNum/2)) + 1;
+                    a = b * (Math.floor(Math.random() * Math.min(10, maxNum/2)) + 1);
+                    text = `${a} ÷ ${b} = ?`;
+                    answer = a / b;
+                    break;
+            }
+            
+            state.current = { a, b, operation, text, answer };
+            return { text, answer };
+        }
+
+        function handleSubmit() {
+            if (!state.gameActive) {
+                showFeedback('Mulai game terlebih dahulu!', 'error');
+                return;
+            }
+            
+            const userAnswer = parseInt(answerInput.value);
+            if (isNaN(userAnswer)) {
+                showFeedback('Masukkan jawaban yang valid!', 'error');
+                return;
+            }
+            
+            // Hentikan timer sebelum memproses jawaban
+            resetTimer();
+            
+            const timeTaken = (Date.now() - state.startTime) / 1000;
+            state.totalTime += timeTaken;
+            state.attempts++;
+            
+            // Update question history
+            state.questionHistory[state.questionHistory.length - 1].time = timeTaken;
+            
+            if (userAnswer === state.current.answer) {
+                // Jawaban benar
+                state.correct++;
+                state.consecutiveCorrect++;
+                
+                // Calculate score based on time and level
+                const baseScore = 10 + state.level;
+                const timeBonus = Math.max(0, 10 - Math.floor(timeTaken));
+                state.score += baseScore + timeBonus;
+                
+                // Level up every 5 correct answers
+                if (state.correct % 5 === 0) {
+                    state.level++;
+                    showFeedback(`Level up! Sekarang level ${state.level}`, 'success');
+                    character.classList.add('dance');
+                    setTimeout(() => character.classList.remove('dance'), 2000);
+                }
+                
+                // Update UI
+                questionBox.classList.add('correct');
+                showFeedback(`Benar! +${baseScore + timeBonus} poin (${timeBonus} bonus waktu)`, 'success');
+                character.className = 'character happy';
+                
+                // Check achievements
+                checkAchievements();
+            } else {
+                // Jawaban salah
+                state.wrong++;
+                state.consecutiveCorrect = 0;
+                state.score = Math.max(0, state.score - 5); // Kurangi 5 poin untuk jawaban salah
+                
+                questionBox.classList.add('wrong');
+                showFeedback(`Salah! Jawaban yang benar: ${state.current.answer}. -5 poin`, 'error');
+                character.className = 'character sad';
+            }
+            
+            // Update progress
+            updateProgress();
+            
+            // Next question after delay
+            setTimeout(() => {
+                showQuestion();
+                character.className = 'character';
+            }, 2000);
+        }
+
+        function showHint() {
+            if (!state.gameActive) {
+                showFeedback('Mulai game terlebih dahulu!', 'error');
+                return;
+            }
+            
+            let hint = '';
+            switch (state.current.operation) {
+                case '+':
+                    hint = `Coba hitung ${state.current.a} + ${state.current.b} dengan menjumlahkan angka satu per satu.`;
+                    break;
+                case '-':
+                    hint = `Coba hitung ${state.current.a} - ${state.current.b} dengan mengurangi ${state.current.b} dari ${state.current.a}.`;
+                    break;
+                case '*':
+                    hint = `Perkalian ${state.current.a} × ${state.current.b} sama dengan ${state.current.a} ditambahkan sebanyak ${state.current.b} kali.`;
+                    break;
+                case '/':
+                    hint = `Pembagian ${state.current.a} ÷ ${state.current.b} berarti mencari berapa kali ${state.current.b} bisa masuk ke dalam ${state.current.a}.`;
+                    break;
+            }
+            
+            hintBox.innerHTML = `<strong>Tips:</strong> ${hint}`;
+            hintBox.style.display = 'block';
+        }
+
+        function skipQuestion() {
+            if (!state.gameActive) {
+                showFeedback('Mulai game terlebih dahulu!', 'error');
+                return;
+            }
+            
+            // Hentikan timer sebelum melewatkan soal
+            resetTimer();
+            
+            state.wrong++;
+            state.consecutiveCorrect = 0;
+            state.score = Math.max(0, state.score - 5);
+            showFeedback(`Soal dilewati! -5 poin. Jawaban: ${state.current.answer}`, 'error');
+            
+            setTimeout(() => {
+                showQuestion();
+            }, 1000);
+        }
+
+        function updateUI() {
+            scoreEl.textContent = state.score;
+            correctEl.textContent = state.correct;
+            wrongEl.textContent = state.wrong;
+            levelNum.textContent = state.level;
+            
+            // Update difficulty label
+            if (state.level <= 3) {
+                difficultyLabel.textContent = 'Mudah';
+                state.difficulty = 1;
+            } else if (state.level <= 6) {
+                difficultyLabel.textContent = 'Sedang';
+                state.difficulty = 2;
+            } else {
+                difficultyLabel.textContent = 'Sulit';
+                state.difficulty = 3;
+            }
+            
+            // Update average time
+            if (state.attempts > 0) {
+                avgTimeEl.textContent = (state.totalTime / state.attempts).toFixed(1);
+            }
+            
+            // Update progress
+            const progress = (state.correct % 5);
+            progressFill.style.width = `${progress * 20}%`;
+            progressText.textContent = `${progress}/5`;
+        }
+
+        function updateProgress() {
+            updateUI();
+            
+            // Simpan progress ke localStorage
+            saveLearningHistory();
+        }
+
+        function showFeedback(message, type) {
+            feedback.textContent = message;
+            feedback.className = `feedback ${type}`;
+            feedback.style.display = 'block';
+        }
+
+        function checkAchievements() {
+            achievements.forEach(ach => {
+                if (!ach.earned) {
+                    let earned = false;
+                    
+                    switch (ach.id) {
+                        case 'first_5':
+                            earned = state.correct >= ach.threshold;
+                            break;
+                        case 'streak_5':
+                            earned = state.consecutiveCorrect >= ach.threshold;
+                            break;
+                        case 'level_10':
+                            earned = state.level >= ach.threshold;
+                            break;
+                        case 'speedster':
+                            earned = state.attempts > 0 && (state.totalTime / state.attempts) < ach.threshold;
+                            break;
+                        case 'math_master':
+                            earned = state.score >= ach.threshold;
+                            break;
+                        case 'persistent':
+                            earned = (state.correct + state.wrong) >= ach.threshold;
+                            break;
+                    }
+                    
+                    if (earned) {
+                        ach.earned = true;
+                        showAchievement(ach);
+                    }
+                }
+            });
+        }
+
+        function showAchievement(achievement) {
+            const badge = document.createElement('span');
+            badge.className = 'achievement-badge';
+            badge.innerHTML = `<span class="icon">${achievement.icon}</span> ${achievement.name}`;
+            badge.title = achievement.desc;
+            achievementContainer.appendChild(badge);
+            
+            // Show reward animation
+            const reward = document.createElement('div');
+            reward.className = 'reward-animation';
+            reward.textContent = achievement.icon;
+            document.body.appendChild(reward);
+            
+            setTimeout(() => {
+                document.body.removeChild(reward);
+            }, 1200);
+            
+            // Update achievements in state
+            state.achievements.push(achievement.id);
+            
+            // Show congratulation message
+            showFeedback(`Selamat! Anda mendapatkan achievement: ${achievement.name}`, 'success');
+        }
+
+        function startTimer() {
+            // Hentikan timer sebelumnya jika masih berjalan
+            clearInterval(state.timer);
+            
+            let timeLeft = state.timeLimit;
+            timeLeftEl.textContent = timeLeft;
+            timerEl.classList.remove('warning');
+            
+            state.timer = setInterval(() => {
+                timeLeft--;
+                timeLeftEl.textContent = timeLeft;
+                
+                // Change color when time is running out
+                if (timeLeft <= 10) {
+                    timerEl.classList.add('warning');
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(state.timer);
+                    showFeedback('Waktu habis! Coba soal berikutnya.', 'error');
+                    // Kurangi skor karena waktu habis
+                    state.score = Math.max(0, state.score - 3);
+                    state.wrong++;
+                    state.consecutiveCorrect = 0;
+                    
+                    setTimeout(() => {
+                        showQuestion();
+                    }, 1500);
+                }
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(state.timer);
+            timerEl.classList.remove('warning');
+            timeLeftEl.textContent = state.timeLimit;
+        }
+
+        function savePlayerProfile() {
+            const name = playerNameInput.value.trim() || 'Pemain';
+            state.playerName = name;
+            localStorage.setItem('mathGamePlayerName', name);
+            showFeedback(`Profil ${name} disimpan!`, 'success');
+        }
+
+        function loadPlayerProfile() {
+            const savedName = localStorage.getItem('mathGamePlayerName');
+            if (savedName) {
+                state.playerName = savedName;
+                playerNameInput.value = savedName;
+            }
+        }
+
+        function renderLeaderboard() {
+            const leaderboard = JSON.parse(localStorage.getItem('mathGameLeaderboard')) || [];
+            leaderboardEl.innerHTML = '';
+            
+            if (leaderboard.length === 0) {
+                leaderboardEl.innerHTML = '<div class="leaderboard-item">Belum ada data</div>';
+                return;
+            }
+            
+            leaderboard.sort((a, b) => b.score - a.score).slice(0, 5).forEach((entry, index) => {
+                const item = document.createElement('div');
+                item.className = 'leaderboard-item';
+                item.innerHTML = `
+                    <div><span class="leaderboard-rank">${index + 1}.</span> ${entry.name}</div>
+                    <div>${entry.score}</div>
+                `;
+                leaderboardEl.appendChild(item);
+            });
+        }
+
+        function resetLeaderboard() {
+            if (confirm('Yakin ingin mereset leaderboard?')) {
+                localStorage.removeItem('mathGameLeaderboard');
+                renderLeaderboard();
+                showFeedback('Leaderboard telah direset!', 'success');
+            }
+        }
+
+        function saveLearningHistory() {
+            // Hitung waktu sesi saat ini
+            const currentSessionTime = state.sessionStartTime ? 
+                Math.floor((Date.now() - state.sessionStartTime) / 1000) : 0;
+            
+            // Ambil data sebelumnya dari localStorage
+            const prevHighestLevel = parseInt(localStorage.getItem('mathGameHighestLevel')) || 0;
+            const prevTotalTime = parseInt(localStorage.getItem('mathGameTotalTime')) || 0;
+            const prevBestScore = parseInt(localStorage.getItem('mathGameBestScore')) || 0;
+            const prevTotalQuestions = parseInt(localStorage.getItem('mathGameTotalQuestions')) || 0;
+            
+            // Update data dengan nilai tertinggi
+            const history = {
+                playerName: state.playerName,
+                highestLevel: Math.max(state.level, prevHighestLevel),
+                totalTime: prevTotalTime + currentSessionTime,
+                bestScore: Math.max(state.score, prevBestScore),
+                totalQuestions: prevTotalQuestions + state.correct + state.wrong
+            };
+            
+            // Simpan ke localStorage
+            localStorage.setItem('mathGameHighestLevel', history.highestLevel);
+            localStorage.setItem('mathGameTotalTime', history.totalTime);
+            localStorage.setItem('mathGameBestScore', history.bestScore);
+            localStorage.setItem('mathGameTotalQuestions', history.totalQuestions);
+            
+            // Update leaderboard jika game aktif
+            if (state.gameActive) {
+                const leaderboard = JSON.parse(localStorage.getItem('mathGameLeaderboard')) || [];
+                const existingIndex = leaderboard.findIndex(entry => entry.name === state.playerName);
+                
+                if (existingIndex !== -1) {
+                    if (state.score > leaderboard[existingIndex].score) {
+                        leaderboard[existingIndex].score = state.score;
+                    }
+                } else {
+                    leaderboard.push({
+                        name: state.playerName,
+                        score: state.score
+                    });
+                }
+                
+                localStorage.setItem('mathGameLeaderboard', JSON.stringify(leaderboard));
+                renderLeaderboard();
+            }
+            
+            // Update UI
+            loadLearningHistory();
+        }
+
+        function loadLearningHistory() {
+            histLevel.textContent = localStorage.getItem('mathGameHighestLevel') || '-';
+            const totalSeconds = parseInt(localStorage.getItem('mathGameTotalTime')) || 0;
+            histTime.textContent = Math.round(totalSeconds / 60);
+            bestScore.textContent = localStorage.getItem('mathGameBestScore') || '0';
+            totalQuestions.textContent = localStorage.getItem('mathGameTotalQuestions') || '0';
+        }
+
+        function handleOperationChange() {
+            if (state.gameActive) {
+                showQuestion();
+            }
+        }
+
+        function handleModeChange() {
+            if (state.gameActive) {
+                // Update time limit based on mode
+                if (modeSelect.value === 'timed') {
+                    state.timeLimit = 15;
+                } else {
+                    state.timeLimit = 30;
+                }
+                resetTimer();
+            }
+            showFeedback(`Mode diubah ke: ${modeSelect.options[modeSelect.selectedIndex].text}`, 'success');
+        }
+
+        function exportData() {
+            const data = {
+                playerName: state.playerName,
+                score: state.score,
+                correct: state.correct,
+                wrong: state.wrong,
+                level: state.level,
+                achievements: state.achievements,
+                questionHistory: state.questionHistory,
+                learningHistory: {
+                    highestLevel: localStorage.getItem('mathGameHighestLevel'),
+                    totalTime: localStorage.getItem('mathGameTotalTime'),
+                    bestScore: localStorage.getItem('mathGameBestScore'),
+                    totalQuestions: localStorage.getItem('mathGameTotalQuestions')
+                }
+            };
+            
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", `math_game_data_${state.playerName}_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+            
+            showFeedback('Data berhasil diekspor!', 'success');
+        }
+
+        function showReport() {
+            const totalSeconds = parseInt(localStorage.getItem('mathGameTotalTime')) || 0;
+            const totalMinutes = Math.round(totalSeconds / 60);
+            const totalQuestions = parseInt(localStorage.getItem('mathGameTotalQuestions')) || 0;
+            const accuracy = totalQuestions > 0 ? Math.round((state.correct / (state.correct + state.wrong)) * 100) : 0;
+            
+            reportContent.innerHTML = `
+                <div style="margin-bottom: 15px;">
+                    <h3 style="margin-bottom: 5px;">Laporan Belajar ${state.playerName}</h3>
+                    <p style="color: #666;">Tanggal: ${new Date().toLocaleDateString('id-ID')}</p>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                    <div class="stat-card">
+                        <span>Level Tertinggi</span>
+                        <span class="stat-value">${localStorage.getItem('mathGameHighestLevel') || '0'}</span>
+                    </div>
+                    <div class="stat-card">
+                        <span>Skor Terbaik</span>
+                        <span class="stat-value">${localStorage.getItem('mathGameBestScore') || '0'}</span>
+                    </div>
+                    <div class="stat-card">
+                        <span>Waktu Belajar</span>
+                        <span class="stat-value">${totalMinutes}m</span>
+                    </div>
+                    <div class="stat-card">
+                        <span>Soal Dijawab</span>
+                        <span class="stat-value">${totalQuestions}</span>
+                    </div>
+                </div>
+                <div style="background: #f5f5f5; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
+                    <h4 style="margin-bottom: 8px;">Statistik Sesi Ini</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div>Skor: <strong>${state.score}</strong></div>
+                        <div>Level: <strong>${state.level}</strong></div>
+                        <div>Benar: <strong>${state.correct}</strong></div>
+                        <div>Salah: <strong>${state.wrong}</strong></div>
+                        <div>Akurasi: <strong>${accuracy}%</strong></div>
+                        <div>Rata-rata Waktu: <strong>${state.attempts > 0 ? (state.totalTime / state.attempts).toFixed(1) : 0}s</strong></div>
+                    </div>
+                </div>
+                <div style="background: #f5f5f5; padding: 12px; border-radius: 8px;">
+                    <h4 style="margin-bottom: 8px;">Pencapaian</h4>
+                    <div id="achievementsList" style="margin-top: 8px;">
+                        ${achievements.filter(a => a.earned).map(a => 
+                            `<div style="display: flex; align-items: center; margin-bottom: 8px;">
+                                <span style="font-size: 18px; margin-right: 8px;">${a.icon}</span>
+                                <div>
+                                    <strong>${a.name}</strong><br>
+                                    <small style="color: #666;">${a.desc}</small>
+                                </div>
+                            </div>`
+                        ).join('') || '<p style="text-align: center; color: #666;">Belum ada achievement yang diraih.</p>'}
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="window.print()" style="width: 100%; margin-top: 15px;">🖨 Cetak Laporan</button>
+            `;
+            
+            reportModal.style.display = 'flex';
+        }
+
+        function showHelp() {
+            alert(`
+PETUALANGAN MATEMATIKA SD - CARA BERMAIN
+
+🎯 TUJUAN:
+- Menguasai operasi hitung dasar (+, -, ×, ÷)
+- Meningkatkan kecepatan dan ketepatan berhitung
+
+🚀 CARA BERMAIN:
+1. Klik "Mulai Game" untuk memulai petualangan
+2. Jawab soal matematika yang muncul
+3. Tekan "Jawab" atau Enter untuk mengirim jawaban
+4. Gunakan "Bantuan" jika kesulitan
+5. "Lewati" untuk melewatkan soal (akan mengurangi skor)
+
+⚙ PENGATURAN:
+- Pilih operasi matematika yang ingin dilatih
+- Pilih mode permainan: Petualangan, Latihan, atau Mode Cepat
+
+🏆 SISTEM SKOR:
+- Jawaban benar: +10 poin + bonus waktu
+- Jawaban salah: -5 poin
+- Naik level setiap 5 jawaban benar
+
+📊 FITUR LAINNYA:
+- Leaderboard untuk melihat peringkat
+- Achievement untuk pencapaian khusus
+- Laporan belajar untuk memantau progres
+
+Selamat belajar dan semoga menyenangkan! 🧮
+            `);
+        }
+
+        // Inisialisasi game saat halaman dimuat
+        window.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
